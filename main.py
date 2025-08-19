@@ -36,9 +36,9 @@ while True:
     if not success:
         break
 
-    cv2.putText(frame, 'Hello World', (50, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, (5, 5, 5), 2)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    cv2.imshow('Webcam Feed', gray)
+    
+    frameConverted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    cv2.imshow('Webcam Feed', frameConverted)
     
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -61,5 +61,6 @@ def hand_tracking(frame):
 
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
-            mp.solutions.drawing_utils.draw_Landmarks
+            mp.solutions.drawing_utils.draw_Landmarks(
+                frame, hand_landmarks, mp.solutions.hands.HAND_CONNECTIONS)
 

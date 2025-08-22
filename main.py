@@ -7,7 +7,7 @@ from music_control.player import MusicController
 def main():
     cap = cv2.VideoCapture(0)
     tracker = HandTracker()
-    recognizer = GestureRecognizer()
+    recognizer = Gesture()
     controller = MusicController("assets/sapne-bande.mp3")
 
     while cap.isOpened():

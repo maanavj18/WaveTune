@@ -15,7 +15,7 @@ def main():
         if not ret:
             break
 
-        results = tracker.process_frame(frame)
+        results = tracker.processFrame(frame)
 
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:

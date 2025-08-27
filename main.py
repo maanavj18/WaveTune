@@ -4,18 +4,21 @@ from gesture.tracking import HandTracker
 from gesture.gesture_comp import Gesture
 from music_control.player import MusicController
 
+
+
 def main():
     cap = cv2.VideoCapture(0)
     tracker = HandTracker()
     recognizer = Gesture()
     controller = MusicController("assets/sapne-bande.mp3")
+   
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        results = tracker.processFrame(frame)
+        frame, results = tracker.processFrame(frame)
 
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:

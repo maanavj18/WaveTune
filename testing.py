@@ -110,3 +110,8 @@ def hand_tracking(frame):
 
 
 """
+"""
+if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                mp.solutions.drawing_utils.draw_landmarks(frame, hand_landmarks, mp.solutions.hands.HAND_CONNECTIONS)
+                """

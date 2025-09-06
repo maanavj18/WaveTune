@@ -6,8 +6,8 @@ class MusicController:
         pygame.mixer.init()
         pygame.mixer.music.load(music_file)
 
-    def handle_gesture(self, gesture):
-        if gesture == "THUMB_UP":
+    def startstop(self, fingers):    
+        if fingers == 5:
             pygame.mixer.music.play()
-        elif gesture == "STOP":
+        elif fingers == 0:
             pygame.mixer.music.stop()

@@ -3,6 +3,7 @@ import cv2
 import mediapipe as mp
 from gesture.tracking import HandTracker
 from gesture.gesture_comp import Gesture
+from gesture_control import count_fingers
 
 from spotify_auth_manager import AuthManager
 from spotify_client import SpotifyClient
@@ -12,32 +13,6 @@ CLIENT_ID = "ada7724248c14883881b4ed784027dc7"
 CLIENT_SECRET = "7987ab4a8ff54158a664a22d9a9b9e3e"
 REDIRECT_URI = "http://127.0.0.1:8888/callback"
 SCOPES = "user-read-playback-state user-modify-playback-state"
-
-def count_fingers(hand_landmarks, handedness):
-    finger_tips_ids = [4, 8, 12, 16, 20]
-    fingers = []
-
-    # Thumb
-    if handedness == "Right":
-        if hand_landmarks.landmark[finger_tips_ids[0]].x < hand_landmarks.landmark[finger_tips_ids[0] - 1].x:
-            fingers.append(1)
-        else:
-            fingers.append(0)
-    else:  # Left hand
-        if hand_landmarks.landmark[finger_tips_ids[0]].x > hand_landmarks.landmark[finger_tips_ids[0] - 1].x:
-            fingers.append(1)
-        else:
-            fingers.append(0)
-
-    # Other four fingers
-    for id in range(1, 5):
-        if hand_landmarks.landmark[finger_tips_ids[id]].y < hand_landmarks.landmark[finger_tips_ids[id] - 2].y:
-            fingers.append(1)
-        else:
-            fingers.append(0)
-
-    return fingers.count(1)
-
 
 def main():
 
@@ -61,7 +36,7 @@ def main():
     recognizer = Gesture()
     #controller = MusicController()
     
-    mp_hands =mp.solutions.hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5)
+    mp_hands = mp.solutions.hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5)
 
     count = 0
     while cap.isOpened():

@@ -1,9 +1,10 @@
 # main.py
 import cv2
 import mediapipe as mp
-from gesture.tracking import HandTracker
-from gesture.gesture_comp import Gesture
-from gesture_control import count_fingers
+
+from frame_buffer import FrameBuffer
+from configurable_gesture import ConfigurableGesture
+from gesture_manager import GestureManager
 
 from spotify_auth_manager import AuthManager
 from spotify_client import SpotifyClient
@@ -20,25 +21,38 @@ def main():
     if not auth.access_token:  # first time
         auth.start_login(SCOPES)
 
-    # 2. Spotify client
     spotify = SpotifyClient(auth)
-
-    # 3. Music controller
     controller = MusicController(spotify)
+    frame_buffer = FrameBuffer(max_length=10)
 
-    # 4. Example: simulate gesture inputs
-    #controller.handle_gesture("play")
-    #controller.handle_gesture("volume_50")
+    fist_config = {
+    'name': 'pause_gesture',
+    'detection_type': 'finger_count',
+    'target_value': 0,
+    'frame_threshold': 8,
+    'cooldown_frames': 30,
+    'action': 'pause'
+    }
+    palm_config = {
+    'name': 'play_gesture',
+    'detection_type': 'finger_count',
+    'target_value': 5,
+    'frame_threshold': 8,
+    'cooldown_frames': 30,
+    'action': 'play'
+    }
     
+    fist_gesture = ConfigurableGesture(fist_config)
+    palm_gesture = ConfigurableGesture(palm_config)
+
+    gesture_manager = GestureManager(controller)
+    gesture_manager.register_gesture(fist_gesture)
+    gesture_manager.register_gesture(palm_gesture)
+
 
     cap = cv2.VideoCapture(0)
-    tracker = HandTracker()
-    recognizer = Gesture()
-    #controller = MusicController()
-    
     mp_hands = mp.solutions.hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5)
 
-    count = 0
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -54,7 +68,8 @@ def main():
             for i, hand_landmarks in enumerate(results.multi_hand_landmarks):
                 handedness = results.multi_handedness[i].classification[0]
                 label = handedness.label  # "Left" or "Right"
-                score = handedness.score  # confidence
+                #score = handedness.score   confidence
+                frame_buffer.add_frame(hand_landmarks, label)
 
                 # Draw landmarks (optional)
                 mp.solutions.drawing_utils.draw_landmarks(
@@ -62,36 +77,9 @@ def main():
                     mp.solutions.drawing_styles.get_default_hand_landmarks_style(),
                     mp.solutions.drawing_styles.get_default_hand_connections_style()
                 )
-
-                # Example: convert a few key points to pixel coords
-                wrist      = hand_landmarks.landmark[0]
-                index_tip  = hand_landmarks.landmark[8]
-                thumb_tip  = hand_landmarks.landmark[4]
-
-                wx, wy = int(wrist.x * w), int(wrist.y * h)
-                ix, iy = int(index_tip.x * w), int(index_tip.y * h)
-                tx, ty = int(thumb_tip.x * w), int(thumb_tip.y * h)
-
-                # Show label and a simple pinch distance
-                pinch_px = ((ix - tx)**2 + (iy - ty)**2) ** 0.5
-                cv2.putText(frame, f"{label} ({score:.2f}) pinch:{int(pinch_px)}",
-                            (wx, wy - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
+        
+        gesture_manager.update(frame_buffer)
                 
-                # Count fingers
-                finger_count = count_fingers(hand_landmarks, label)
-                cv2.putText(frame, f"Fingers: {finger_count}", (wx, wy + 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,0,0), 2)
-                
-                
-                if finger_count == 5:
-                    count+=1
-                    if(count == 5):
-                        controller.handle_gesture("play")
-                        controller.handle_gesture("volume_50")
-                else:
-                    count = 0
-                
-
         cv2.imshow("HandyMusic", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

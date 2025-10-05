@@ -34,10 +34,28 @@ class ConfigurableGesture:
             if self.cooldown_count >= self.cooldown_frames:
                 self.state = self.IDLE
                 self.cooldown_count = 0
-                return None
+            return None
         
         if self._check_detection(last_frame):
-            
+            self.frame_count +=1
+            self.state = self.DETECTING
+            if self.frame_count >= self.frame_threshold:
+                self.state = self.CONFIRMED
+                event = {
+                    "gesture": self.name,
+                    "action": self.action
+                }
+                self.state = self.COOLDOWN
+                self.frame_count = 0
+                return event
+            else:
+                return None
+        else:
+            self.frame_count = 0
+            if self.state != self.COOLDOWN:
+                self.state = self.IDLE
+            return None
+
 
         
         

@@ -1,10 +1,7 @@
 import numpy as np
 
-class GestureController:
-    def __init__(self):
-        pass # Placeholder for future initialization
-    
-    def count_fingers(hand_landmarks, handedness):
+
+def count_fingers(hand_landmarks, handedness):
         finger_tips_ids = [4, 8, 12, 16, 20]
         fingers = []
             # Thumb
@@ -27,6 +24,9 @@ class GestureController:
                 fingers.append(0)
 
         return fingers.count(1)
+class GestureUtils:
+    def __init__(self):
+        pass # Placeholder for future initialization
     
     def calculate_distance(point1, point2):
         return np.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2 + (point1.z - point2.z)**2)

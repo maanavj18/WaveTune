@@ -1,5 +1,5 @@
 import time
-from gesture_control import count_fingers
+from gesture_utils import count_fingers
 
 class FrameBuffer:
     def __init__(self, max_length = 10):

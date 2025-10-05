@@ -2,6 +2,8 @@
 import cv2
 import mediapipe as mp
 
+import os
+from dotenv import load_dotenv
 from frame_buffer import FrameBuffer
 from configurable_gesture import ConfigurableGesture
 from gesture_manager import GestureManager
@@ -10,12 +12,15 @@ from spotify_auth_manager import AuthManager
 from spotify_client import SpotifyClient
 from music_control import MusicController
 
-CLIENT_ID = "ada7724248c14883881b4ed784027dc7"
-CLIENT_SECRET = "7987ab4a8ff54158a664a22d9a9b9e3e"
-REDIRECT_URI = "http://127.0.0.1:8888/callback"
-SCOPES = "user-read-playback-state user-modify-playback-state"
 
 def main():
+
+    load_dotenv
+
+    CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+    CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+    REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+    SCOPES = os.getenv("SPOTIFY_SCOPES")
 
     auth = AuthManager(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
     if not auth.access_token:  # first time

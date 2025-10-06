@@ -1,13 +1,15 @@
-# main.py
+# OpenCV and MediaPipe for hand tracking
 import cv2
 import mediapipe as mp
 
-import os
-from dotenv import load_dotenv
+#Gesture Recognition and Frame Buffer
 from frame_buffer import FrameBuffer
 from configurable_gesture import ConfigurableGesture
 from gesture_manager import GestureManager
 
+# Spotify API Imports
+import os
+from dotenv import load_dotenv
 from spotify_auth_manager import AuthManager
 from spotify_client import SpotifyClient
 from music_control import MusicController
@@ -15,13 +17,14 @@ from music_control import MusicController
 
 def main():
 
-    load_dotenv
+    load_dotenv()
 
-    CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-    CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
-    REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
-    SCOPES = os.getenv("SPOTIFY_SCOPES")
+    CLIENT_ID = os.getenv("CLIENT_ID")
+    CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+    REDIRECT_URI = os.getenv("REDIRECT_URI")
+    SCOPES = os.getenv("SCOPES")
 
+    
     auth = AuthManager(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
     if not auth.access_token:  # first time
         auth.start_login(SCOPES)
@@ -46,13 +49,24 @@ def main():
     'cooldown_frames': 30,
     'action': 'play'
     }
+
+    swipe_next_config = {
+    'name': "swipe",
+    'detection_type': 'movement',
+    'target_value': None,
+    'frame_threshold': None,
+    'cooldown_frames': 30,
+    'action': 'skip'
+    }
     
     fist_gesture = ConfigurableGesture(fist_config)
     palm_gesture = ConfigurableGesture(palm_config)
+    swipe_next_gesture = ConfigurableGesture(swipe_next_config)
 
     gesture_manager = GestureManager(controller)
     gesture_manager.register_gesture(fist_gesture)
     gesture_manager.register_gesture(palm_gesture)
+    gesture_manager.register_gesture(swipe_next_gesture)
 
 
     cap = cv2.VideoCapture(0)
@@ -84,6 +98,7 @@ def main():
                 )
         
         gesture_manager.update(frame_buffer)
+        print(frame_buffer.get_latest().get("landmarks").landmark[8].x)
                 
         cv2.imshow("HandyMusic", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):

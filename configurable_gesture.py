@@ -21,9 +21,8 @@ class ConfigurableGesture:
     def _check_detection(self, frame_data):
         if self.detection_type == "finger_count":
             return self.target_value == frame_data["finger_count"]
-        
-        return False
-    
+        if self.detection_type == "movement":
+            pass
     def update(self, frame_buffer):
         last_frame = frame_buffer.get_latest()
         if not last_frame:

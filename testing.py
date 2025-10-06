@@ -115,3 +115,22 @@ if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 mp.solutions.drawing_utils.draw_landmarks(frame, hand_landmarks, mp.solutions.hands.HAND_CONNECTIONS)
                 """
+
+"""# Example: convert a few key points to pixel coords
+                wrist      = hand_landmarks.landmark[0]
+                index_tip  = hand_landmarks.landmark[8]
+                thumb_tip  = hand_landmarks.landmark[4]
+
+                wx, wy = int(wrist.x * w), int(wrist.y * h)
+                ix, iy = int(index_tip.x * w), int(index_tip.y * h)
+                tx, ty = int(thumb_tip.x * w), int(thumb_tip.y * h)
+
+                # Show label and a simple pinch distance
+                pinch_px = ((ix - tx)**2 + (iy - ty)**2) ** 0.5
+                cv2.putText(frame, f"{label} ({score:.2f}) pinch:{int(pinch_px)}",
+                            (wx, wy - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
+                
+                # Count fingers
+                finger_count = count_fingers(hand_landmarks, label)
+                cv2.putText(frame, f"Fingers: {finger_count}", (wx, wy + 20),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,0,0), 2)"""
